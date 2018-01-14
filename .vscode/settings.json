@@ -1,0 +1,9 @@
+{
+    "terminal.integrated.env.osx": {
+        "PATH": "/Users/geoffday/.platformio/penv/bin:/Users/geoffday/.rvm/gems/ruby-2.4.0/bin:/Users/geoffday/.rvm/gems/ruby-2.4.0@global/bin:/Users/geoffday/.rvm/rubies/ruby-2.4.0/bin:/Users/geoffday/Library/Android/sdk/tools/bin:/Users/geoffday/Library/Android/sdk/tools:/Users/geoffday/Library/Android/sdk/platform-tools:/Library/Frameworks/Python.framework/Versions/3.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/ImageMagick/bin:/Applications/Postgres.app/Contents/Versions/latest/bin:/Users/geoffday/Library/Android/sdk/platform-tools:/Users/geoffday/Library/Android/sdk:/Users/geoffday/.rvm/bin"
+    },
+    "files.associations": {
+        "array": "cpp",
+        "initializer_list": "cpp"
+    }
+}
