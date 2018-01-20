@@ -87,8 +87,9 @@ void Output::bmpDraw(String filename, int16_t x, int16_t y)
   // Parse BMP header
   if (read16(bmpFile) == 0x4D42)
   { // BMP signature
-    Serial.print(F("File size: "));
-    Serial.println(read32(bmpFile));
+    /*Serial.print(F("File size: "));
+    Serial.println(read32(bmpFile));*/
+    read32(bmpFile);
     (void)read32(bmpFile);            // Read & ignore creator bytes
     bmpImageoffset = read32(bmpFile); // Start of image data
     // Read DIB header

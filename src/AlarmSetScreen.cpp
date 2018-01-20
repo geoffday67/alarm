@@ -4,12 +4,17 @@
 #include "Output.h"
 #include "AlarmManager.h"
 #include "Button.h"
+#include <vector>
 
-extern classEventManager EventManager;
+extern Screen* pIdleScreen;
+
+using namespace std;
 
 class AlarmSetScreen: public Screen, EventReceiver {
 private:
     Alarm *pAlarms;
+    Button *pBackButton;
+    vector<Button>* pButtons;
 
     void showAlarms() {
         int y = 20;
@@ -21,10 +26,8 @@ private:
             if (!palarm->configured)
                 continue;
             sprintf (text, "%2d:%02d %s", palarm->hour, palarm->minute, palarm->isAM() ? "AM" : "PM");
-            pOutput->showText(20, y, text, Colours::Green);
-            Button *pbutton = (new Button(pOutput, 20, y, 200, 36))
-                ->id(n);
-            y += 40;
+            pButtons->push_back(TextButton(pOutput, 20, y, 200, 40, text, n));
+            y += 46;
         }
     }
 
@@ -33,23 +36,37 @@ public:
     virtual ~AlarmSetScreen() {}
 
     virtual void activate() {
+        pButtons = new vector<Button>();
+
         pAlarms = new Alarm[AlarmManager.getAlarmCount()];
         AlarmManager.getAlarms(pAlarms);
         showAlarms();
         EventManager.addListener(EVENT_BUTTON, this);
+        pBackButton = new ImageButton(pOutput, 8, 168, ButtonImage::Back, 0);
     }
 
     virtual void deactivate() {
+        delete pButtons;
         delete [] pAlarms;
+        EventManager.removeListener(this);
+        delete pBackButton;
     }
 
-    virtual void onEvent(int type, void *pdata) {
-        if (type != EVENT_BUTTON)
+    virtual void onEvent(Event *pevent) {
+        if (pevent->type != EVENT_BUTTON)
             return;
 
-        ButtonEvent *pbe = (ButtonEvent*) pdata;
+        ButtonEvent *pbutton = (ButtonEvent*) pevent;
+        switch(pbutton->id) {
+            case 0:
+                this->deactivate();
+                pIdleScreen->activate();
+                break;
+        }
+    }
 
-        Serial.println(pbe->id);
+    virtual void identify() {
+        Serial.print("AlarmSetScreen");
     }
 };
 

@@ -66,3 +66,11 @@ const Alarm* classAlarmManager::getNextAlarm(time_t now) {
         return alarms + found;
     }
 }
+
+void classAlarmManager::setCurrentTime(time_t time) {
+    currentTime = time;
+}
+
+time_t classAlarmManager::getCurrentTime() {
+    return currentTime;
+}

@@ -12,6 +12,7 @@
 #include "Screen.h"
 #include "Output.h"
 #include "Button.h"
+#include "AlarmManager.h"
 
 #define TFT_LIGHT 16
 
@@ -22,10 +23,7 @@ extern Screen* createIdleScreen (Output *pout);
 extern Screen* createAlarmSetScreen (Output *pout);
 extern Screen* createRemoteScreen (Output *pout);
 
-classEventManager EventManager;
-
 Adafruit_STMPE610 touch = Adafruit_STMPE610();
-bool touched = false;
 int last_x, last_y;
 time_t lastTime;
 WiFiUDP ntpUDP;
@@ -90,32 +88,52 @@ void setup()
   pIdleScreen->activate();
 }
 
+void processTouch() {
+  static bool touched_previously = false;
+
+  // The last touched position
+  static int last_x = -1;
+  static int last_y = -1;
+
+  // Update 'last touched' to most recent touch position, if any
+  uint16_t raw_x, raw_y;
+  uint8_t raw_z;
+  int this_x = -1;
+  int this_y = -1;
+  bool buffer_empty;
+  while (!touch.bufferEmpty()) {
+    touch.readData(&raw_x, &raw_y, &raw_z);
+    this_x = raw_y / 12.8;
+    this_y = (4096 - raw_x) / 17;
+  }
+
+  // Record if there were any points in buffer
+  buffer_empty = (this_x == -1 && this_y == -1);
+
+  if (!buffer_empty) {
+    last_x = this_x;
+    last_y = this_y;
+
+    // If the buffer is not empty then a touch event happened, fire DOWN if not already down
+    if (!touched_previously) {
+      EventManager.queueEvent(new TouchEvent(last_x, last_y, true));
+      touched_previously = true;
+    }
+  } else {
+    // The buffer is empty, the user is no longer touching the screen, fire UP if not already up
+    if (touched_previously) {
+      EventManager.queueEvent(new TouchEvent(last_x, last_y, false));
+      touched_previously = false;
+    }
+  }
+}
+
 void loop()
 {
   /*int n = analogRead(A0);
     Serial.println(n);*/
 
-  uint16_t raw_x, raw_y;
-  uint8_t raw_z;
-
-  // Check for a touch event (down or up), fire event
-  if (touch.touched()) {
-    while (!touch.bufferEmpty()) {
-      touch.readData(&raw_x, &raw_y, &raw_z);
-
-      if (!touched) {
-        last_x = raw_y / 12.8;
-        last_y = (4096 - raw_x) / 17;
-        EventManager.fireEvent(EVENT_TOUCH, new TouchEvent(last_x, last_y, true));
-        touched = true;
-      }
-    }
-  } else {
-    if (touched) {
-      EventManager.fireEvent(EVENT_TOUCH, new TouchEvent(last_x, last_y, false));
-      touched = false;
-    }
-  }
+  processTouch();
 
   /*while (Serial.available())
   {
@@ -139,9 +157,12 @@ void loop()
   time_t utc = RTC.get();
   if (utc != lastTime) {
     time_t local = UK.toLocal(utc);
-    EventManager.fireEvent(EVENT_TIME, &local);
+    AlarmManager.setCurrentTime(local);
+    EventManager.queueEvent(new TimeEvent(local));
     lastTime = utc;
   }
 
-  delay(10);
+  EventManager.processEvents();
+
+  delay(100);
 }

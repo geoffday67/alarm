@@ -2,6 +2,7 @@
 #define __BUTTON__
 
 #include "EventReceiver.h"
+#include "Event.h"
 #include "Output.h"
 
 class Button: public EventReceiver {
@@ -18,11 +19,12 @@ class Button: public EventReceiver {
     virtual bool contains(int x, int y);
     virtual void showDown();
     virtual void showUp();
-    virtual void onEvent(int type, void *pdata);
+    virtual void onEvent(Event* pevent);
+    virtual void identify();
 };
 
 enum ButtonImage {
-  Save, Remote, Back
+  Save, Remote, Back, Settings
 };
 
 class ImageButton: public Button {
@@ -34,6 +36,20 @@ class ImageButton: public Button {
     virtual ~ImageButton();
     virtual void showDown();
     virtual void showUp();
+};
+
+class BitmapButton: public Button {
+public:
+    BitmapButton (Output *poutput, int left, int top, int width, int height, const char* pfilename, int id);
+    virtual ~BitmapButton();
+    virtual void showDown();
+    virtual void showUp();
+};
+
+class TextButton: public Button {
+public:
+  TextButton (Output *poutput, int left, int top, int width, int height, const char* ptext, int id);
+  virtual ~TextButton();
 };
 
 #endif

@@ -4,8 +4,6 @@
 #include "Output.h"
 #include "AlarmManager.h"
 
-extern classEventManager EventManager;
-
 class AlarmAdjustScreen: public Screen, EventReceiver {
     public:
         AlarmAdjustScreen (Alarm *palarm, Output *pout): Screen (pout) {}
@@ -17,7 +15,11 @@ class AlarmAdjustScreen: public Screen, EventReceiver {
     virtual void deactivate() {
     }
 
-    virtual void onEvent(int type, void *pdata) {
+    virtual void onEvent(Event* pevent) {
+    }
+
+    virtual void identify() {
+        Serial.print("AlarmAdjustScreen");
     }
 };
 

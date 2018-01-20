@@ -5,9 +5,10 @@
 #include "EventReceiver.h"
 #include "Output.h"
 #include "Button.h"
+#include "AlarmManager.h"
 
-extern classEventManager EventManager;
 extern Screen* pRemoteScreen;
+extern Screen* pAlarmSetScreen;
 
 /*
 Screen is 320 x 240, buttons are 64 x 64 by default.
@@ -25,31 +26,39 @@ public:
         EventManager.addListener(EVENT_BUTTON, this);
         pOutput->clear();
         pRemoteButton = (new ImageButton(pOutput, 8, 168, ButtonImage::Remote, 0));
+        pSettingsButton = (new ImageButton(pOutput, 248, 168, ButtonImage::Settings, 1));
+        showTime(AlarmManager.getCurrentTime());
     }
 
     virtual void deactivate() {
         EventManager.removeListener(this);
         delete pRemoteButton;
+        delete pSettingsButton;
     }
 
-    virtual void onEvent(int type, void *pdata) {
-        switch (type) {
+    virtual void onEvent(Event* pevent) {
+        switch (pevent->type) {
             case EVENT_TIME:
-                handleTimeEvent(*((time_t*) pdata));
+                handleTimeEvent((TimeEvent*) pevent);
                 break;
 
             case EVENT_BUTTON:
-                handleButtonEvent((ButtonEvent*) pdata);
+                handleButtonEvent((ButtonEvent*) pevent);
                 break;
         }
     }
 
+    virtual void identify() {
+        Serial.print("IdleScreen");
+    }
+
 private:
     Button* pRemoteButton;
+    Button* pSettingsButton;
     time_t previousTime;
 
-    void handleTimeEvent (time_t now) {
-        showTime(now);
+    void handleTimeEvent (TimeEvent *pevent) {
+        showTime(pevent->time);
 
         // Check if an alarm has gone off
         /*if (previousTime < pEventManager->getNextAlarmTime() &&
@@ -57,7 +66,7 @@ private:
                 pOutput->soundAlarm();
         }*/
 
-        previousTime = now;
+        previousTime = pevent->time;
     }
 
     void showTime(time_t time) {
@@ -74,8 +83,17 @@ private:
     }
 
     void handleButtonEvent (ButtonEvent *pevent) {
-        this->deactivate();
-        pRemoteScreen->activate();
+        switch(pevent->id) {
+            case 0:
+                this->deactivate();
+                pRemoteScreen->activate();
+                break;
+
+            case 1:
+                this->deactivate();
+                pAlarmSetScreen->activate();
+                break;
+        }
     }
 };
 
