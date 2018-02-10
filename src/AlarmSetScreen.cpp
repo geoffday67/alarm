@@ -4,52 +4,73 @@
 #include "Output.h"
 #include "AlarmManager.h"
 #include "Button.h"
-#include <vector>
+#include "RadioButtons.h"
+#include "AlarmAdjustScreen.h"
 
 extern Screen* pIdleScreen;
 
 using namespace std;
 
+#define SAVE_BUTTON                 -1
+#define ACTIVE_BUTTON_FIRST         10
+#define ALARM_BUTTON_FIRST          20
+
 class AlarmSetScreen: public Screen, EventReceiver {
 private:
-    Alarm *pAlarms;
-    Button *pBackButton;
-    vector<Button>* pButtons;
+    Alarm currentAlarms[ALARM_COUNT];
+    TextButton *pAlarmButtons[ALARM_COUNT];
+    RadioButtons* pActiveButtons;
+    Button *pSaveButton;
 
     void showAlarms() {
-        int y = 20;
+        // Display the configured alarms as text buttons
+        int y = TOP_MARGIN;
         char text [32];
         Alarm *palarm;
-        pOutput->clear();
-        for (int n = 0; n < AlarmManager.getAlarmCount(); n++) {
-            palarm = pAlarms + n;
-            if (!palarm->configured)
-                continue;
-            sprintf (text, "%2d:%02d %s", palarm->hour, palarm->minute, palarm->isAM() ? "AM" : "PM");
-            pButtons->push_back(TextButton(pOutput, 20, y, 200, 40, text, n));
-            y += 46;
+        for (int n = 0; n < ALARM_COUNT; n++) {
+            palarm = currentAlarms + n;
+
+            if (palarm->configured) {
+                sprintf (text, "%2d:%02d %s", palarm->hour, palarm->minute, palarm->isAM() ? "AM" : "PM");
+            } else {
+                strcpy (text, "");
+            }
+
+            pAlarmButtons[n] = new TextButton (80, y, 160, 48, text, n + ALARM_BUTTON_FIRST);
+            pActiveButtons->add(252, y);
+
+            if (palarm->enabled) {
+                pActiveButtons->setChecked(n);
+            }
+
+            y += 58;
         }
     }
 
 public:
-    AlarmSetScreen (Output *pout): Screen (pout) {}
+    AlarmSetScreen (): Screen () {}
     virtual ~AlarmSetScreen() {}
 
     virtual void activate() {
-        pButtons = new vector<Button>();
+        pActiveButtons = new RadioButtons(ACTIVE_BUTTON_FIRST);
+        pActiveButtons->canToggle = true;
 
-        pAlarms = new Alarm[AlarmManager.getAlarmCount()];
-        AlarmManager.getAlarms(pAlarms);
+        Output.clear();
+
+        AlarmManager.getAlarms(currentAlarms);
         showAlarms();
+
         EventManager.addListener(EVENT_BUTTON, this);
-        pBackButton = new ImageButton(pOutput, 8, 168, ButtonImage::Back, 0);
+        pSaveButton = new ImageButton(LEFT_BUTTON_X, LEFT_BUTTON_Y, ButtonImage::Save, SAVE_BUTTON);
     }
 
     virtual void deactivate() {
-        delete pButtons;
-        delete [] pAlarms;
+        delete pActiveButtons;
+        for (int n = 0; n < ALARM_COUNT; n++) {
+            delete pAlarmButtons[n];
+        }
+        delete pSaveButton;
         EventManager.removeListener(this);
-        delete pBackButton;
     }
 
     virtual void onEvent(Event *pevent) {
@@ -57,19 +78,30 @@ public:
             return;
 
         ButtonEvent *pbutton = (ButtonEvent*) pevent;
-        switch(pbutton->id) {
-            case 0:
-                this->deactivate();
-                pIdleScreen->activate();
-                break;
-        }
-    }
 
-    virtual void identify() {
-        Serial.print("AlarmSetScreen");
+        if (pbutton->id == SAVE_BUTTON) {
+            int checked = pActiveButtons->getChecked();
+            for (int n = 0; n < ALARM_COUNT; n++) {
+                currentAlarms[n].enabled = (n == checked);
+                AlarmManager.setAlarm(n, currentAlarms + n);
+            }                
+
+            this->deactivate();
+            pIdleScreen->activate();
+            return;
+        }
+
+        // Check for one of the alarm times pressed
+        if (pbutton->id >= ALARM_BUTTON_FIRST && pbutton->id < ALARM_BUTTON_FIRST + ALARM_COUNT) {
+            this->deactivate();
+            //AlarmAdjustScreen.setAlarm(currentAlarms + pbutton->id - ALARM_BUTTON_FIRST);
+            AlarmAdjustScreen.setAlarmIndex (pbutton->id - ALARM_BUTTON_FIRST);
+            AlarmAdjustScreen.activate();
+            return;
+        }
     }
 };
 
-Screen* createAlarmSetScreen (Output *pout) {
-        return new AlarmSetScreen(pout);
+Screen* createAlarmSetScreen () {
+        return new AlarmSetScreen();
     }

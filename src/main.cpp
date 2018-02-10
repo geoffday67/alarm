@@ -16,12 +16,15 @@
 
 #define TFT_LIGHT 16
 
-extern void bmpDraw(String filename, int16_t x, int16_t y);
+extern void calibrate(Adafruit_STMPE610& touch);
+extern void loadCalibration();
+extern void transform(int raw_x, int raw_y, int* pscreen_x, int* pscreen_y);
+
 extern void wifi_init(void);
 extern void wifi_remote(const int channel, const char *command);
-extern Screen* createIdleScreen (Output *pout);
-extern Screen* createAlarmSetScreen (Output *pout);
-extern Screen* createRemoteScreen (Output *pout);
+extern Screen* createIdleScreen ();
+extern Screen* createAlarmSetScreen ();
+extern Screen* createRemoteScreen ();
 
 Adafruit_STMPE610 touch = Adafruit_STMPE610();
 int last_x, last_y;
@@ -29,10 +32,9 @@ time_t lastTime;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 
-Output output;
-Screen *pIdleScreen = createIdleScreen(&output);
-Screen *pAlarmSetScreen = createAlarmSetScreen(&output);
-Screen *pRemoteScreen = createRemoteScreen(&output);
+Screen *pIdleScreen = createIdleScreen();
+Screen *pAlarmSetScreen = createAlarmSetScreen();
+Screen *pRemoteScreen = createRemoteScreen();
 
 TimeChangeRule BST = {"BST", Last, Sun, Mar, 1, 60}; //British Summer Time
 TimeChangeRule GMT = {"GMT", Last, Sun, Oct, 2, 0};  //Standard Time
@@ -82,8 +84,11 @@ void setup()
     Serial.print(dir.fileName());
     File f = dir.openFile("r");
     Serial.println(f.name());
-  }
-  bmpDraw ("/boilme.bmp", 0, 40);*/
+  }*/
+
+
+  //calibrate(touch);
+  loadCalibration();
 
   pIdleScreen->activate();
 }
@@ -103,8 +108,7 @@ void processTouch() {
   bool buffer_empty;
   while (!touch.bufferEmpty()) {
     touch.readData(&raw_x, &raw_y, &raw_z);
-    this_x = raw_y / 12.8;
-    this_y = (4096 - raw_x) / 17;
+    transform(raw_x, raw_y, &this_x, &this_y);
   }
 
   // Record if there were any points in buffer

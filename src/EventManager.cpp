@@ -18,14 +18,6 @@ TouchEvent::TouchEvent(int x, int y, bool down): Event(EVENT_TOUCH) {
     this->x = x;
     this->y = y;
     this->down = down;
-
-    /*if (down)
-        Serial.print ("DOWN at ");
-    else
-        Serial.print ("UP at ");
-    Serial.print(x);
-    Serial.print(", ");
-    Serial.println(y);*/
 }
 
 /*****************************************************************************/
@@ -46,11 +38,6 @@ RegisteredReceiver::RegisteredReceiver(EventReceiver *per, int type) {
 /*****************************************************************************/
 void classEventManager::addListener(int type, EventReceiver *per) {
     listReceivers.emplace_back(per, type);
-
-    Serial.print ("Listener ");
-    per->identify();
-    Serial.print (" added for type ");
-    Serial.println (type);
 }
 
 /*****************************************************************************/
@@ -67,17 +54,10 @@ void classEventManager::removeListener(EventReceiver *per) {
             i++;
         }
     }
-
-    Serial.print ("Listener ");
-    per->identify();
-    Serial.println (" removed");
 }
 
 /*****************************************************************************/
 void classEventManager::queueEvent (Event* pevent) {
-    Serial.print ("Queueing event type ");
-    Serial.println (pevent->type);
-
     queueEvents.push(pevent);
 }
 
@@ -98,12 +78,6 @@ void classEventManager::processEvents() {
         vector<RegisteredReceiver>::const_iterator i;
         for (i = receivers.cbegin(); i != receivers.cend(); i++) {
             if (i->type == pevent->type) {
-
-                Serial.print ("Listener ");
-                i->pEventReceiver->identify();
-                Serial.print (" called for type ");
-                Serial.println (pevent->type);
-
                 i->pEventReceiver->onEvent(pevent);
             }
         }

@@ -1,5 +1,6 @@
 #include "AlarmManager.h"
 #include <string.h>
+#include <TimeLib.h>
 
 classAlarmManager AlarmManager;
 
@@ -26,12 +27,12 @@ void classAlarmManager::restore() {
     alarms[3].configured = false;
 }
 
-int classAlarmManager::getAlarmCount() {
-    return 4;
+void classAlarmManager::setAlarm(int index, Alarm* palarm) {
+    memcpy (alarms + index, palarm, sizeof (Alarm));
 }
 
 void classAlarmManager::getAlarms(Alarm* palarm) {
-    for (int n = 0; n < getAlarmCount(); n++) {
+    for (int n = 0; n < ALARM_COUNT; n++) {
         memcpy (palarm + n, alarms + n, sizeof (Alarm));
     }
 }
@@ -45,7 +46,7 @@ const Alarm* classAlarmManager::getNextAlarm(time_t now) {
     int now_mins = (elements.Hour * 60) + elements.Minute;
 
     // For each configured alarm time, calculate its difference from now. Choose the least.
-    for (int n = 0; n < getAlarmCount(); n++)
+    for (int n = 0; n < ALARM_COUNT; n++)
     {
         if (!alarms[n].configured) {
             continue;

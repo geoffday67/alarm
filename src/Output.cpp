@@ -4,44 +4,63 @@
 #define TFT_DC 0
 #define TFT_CS 15
 
-Output::Output() {
+classOutput Output;
+
+classOutput::classOutput() {
 	pTFT= new  Adafruit_ILI9341(TFT_CS, TFT_DC);
-  	pTFT->begin();
-  	pTFT->setRotation(3);
+  pTFT->begin();
+  pTFT->setRotation(3);
   clear();
 }
 
-Output::~Output() {}
+classOutput::~classOutput() {}
 
-void Output::clear() {
+void classOutput::clear() {
   pTFT->fillScreen(ILI9341_WHITE);    
 }
 
-void Output::showText(int x, int y, const char *ptext, Colours colour) {
-    pTFT->setCursor(x, y);
-    pTFT->setTextColor((int) colour, ILI9341_WHITE);
-    pTFT->setTextSize(3);
-    pTFT->print(ptext);
+void classOutput::showText(int x, int y, const char *ptext, Colours colour) {
+  showText(x, y, ptext, colour, Colours::White);
 }
 
-void Output::drawRectangle(int x, int y, int width, int height, Colours colour) {
-    pTFT->drawRect(x, y, width, height, (int) colour);
+void classOutput::showText(int x, int y, const char *ptext, Colours foreground, Colours background) {
+  pTFT->setCursor(x, y);
+  pTFT->setTextColor((int) foreground, (int) background);
+  pTFT->setTextSize(3);
+  pTFT->print(ptext);
 }
 
-void Output::drawImage(int x, int y, int width, int height, Colours colour, const unsigned char* pimage) {
+void classOutput::drawRectangle(int x, int y, int width, int height, Colours colour) {
+  pTFT->drawRect(x, y, width, height, (int) colour);
+}
+
+void classOutput::fillRectangle(int x, int y, int width, int height, Colours colour) {
+  pTFT->fillRect(x, y, width, height, (int) colour);
+}
+
+void classOutput::drawImage(int x, int y, int width, int height, Colours colour, const unsigned char* pimage) {
+  pTFT->fillRect(x, y, width, height, (int) Colours::White);
 	pTFT->drawBitmap(x, y, pimage, width, height, (int) colour);
 }
 
-void Output::drawBitmap(int x, int y, const char *pfilename) {
+void classOutput::drawHorzLine(int x, int y, int length, Colours colour) {
+  pTFT->drawFastHLine(x, y, length, (int) colour);
+}
+
+void classOutput::drawVertLine(int x, int y, int length, Colours colour) {
+  pTFT->drawFastVLine(x, y, length, (int) colour);
+}
+
+void classOutput::drawBitmap(int x, int y, const char *pfilename) {
 	bmpDraw (pfilename, x, y);
 }
 
-void Output::showIdleTime(time_t time) {}
-void Output::showImage(int x, int y, const char *filename) {}
-void Output::playSound() {}
-void Output::soundAlarm() {}
+void classOutput::showIdleTime(time_t time) {}
+void classOutput::showImage(int x, int y, const char *filename) {}
+void classOutput::playSound() {}
+void classOutput::soundAlarm() {}
 
-uint16_t Output::read16(File &f)
+uint16_t classOutput::read16(File &f)
 {
   uint16_t result;
   ((uint8_t *)&result)[0] = f.read(); // LSB
@@ -49,7 +68,7 @@ uint16_t Output::read16(File &f)
   return result;
 }
 
-uint32_t Output::read32(File &f)
+uint32_t classOutput::read32(File &f)
 {
   uint32_t result;
   ((uint8_t *)&result)[0] = f.read(); // LSB
@@ -59,7 +78,7 @@ uint32_t Output::read32(File &f)
   return result;
 }
 
-void Output::bmpDraw(String filename, int16_t x, int16_t y)
+void classOutput::bmpDraw(String filename, int16_t x, int16_t y)
 {
   File bmpFile;
   int bmpWidth, bmpHeight;            // W+H in pixels

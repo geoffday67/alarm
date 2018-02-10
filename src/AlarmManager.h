@@ -1,6 +1,8 @@
 #ifndef __ALARM_MANAGER__
 #define __ALARM_MANAGER__
 
+#define ALARM_COUNT   3
+
 #include <time.h>
 //#include "Persistent.h"
 
@@ -17,13 +19,13 @@ class Alarm
 class classAlarmManager
 {
   private:
-    Alarm alarms[4];
+    Alarm alarms[ALARM_COUNT];
     void restore();
     time_t currentTime;
 
   public:
     classAlarmManager();
-    int getAlarmCount();
+    void setAlarm(int index, Alarm* palarm);
     void getAlarms(Alarm* palarm);
     const Alarm *getNextAlarm(time_t now);
     time_t getCurrentTime();

@@ -5,13 +5,9 @@
 
 class Screen {
 protected:
-    Screen (Output *pout) {
-        pOutput = pout;
-    }
-
-    virtual ~Screen() {}
-
-    Output *pOutput;
+    Screen ();
+    virtual ~Screen();
+    virtual void showTitle(const char* ptext);
 
 public:
     virtual void activate() = 0;

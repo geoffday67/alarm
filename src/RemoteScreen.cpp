@@ -9,15 +9,14 @@ extern Screen* pIdleScreen;
 
 class RemoteScreen: public Screen, EventReceiver {
 public:
-    RemoteScreen (Output *pout): Screen (pout) {
-    }
+    RemoteScreen (): Screen () {    }
     virtual ~RemoteScreen() {}
 
     virtual void activate() {
         EventManager.addListener(EVENT_BUTTON, this);
-        pOutput->clear();
-        pBackButton = new ImageButton(pOutput, 8, 168, ButtonImage::Back, 0);
-        pOnButton = new BitmapButton(pOutput, 149, 40, 128, 160, "/kettle.bmp", 1);
+        Output.clear();
+        pBackButton = new ImageButton(8, 168, ButtonImage::Back, 0);
+        pOnButton = new BitmapButton(149, 40, 128, 160, "/kettle.bmp", 1);
     }
 
     virtual void deactivate() {
@@ -52,6 +51,6 @@ private:
     }
 };
 
-Screen* createRemoteScreen (Output *pout) {
-        return new RemoteScreen(pout);
+Screen* createRemoteScreen () {
+        return new RemoteScreen();
     }

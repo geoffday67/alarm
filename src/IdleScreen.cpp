@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <TimeLib.h>
 #include "Screen.h"
 #include "EventManager.h"
 #include "EventReceiver.h"
@@ -10,13 +11,9 @@
 extern Screen* pRemoteScreen;
 extern Screen* pAlarmSetScreen;
 
-/*
-Screen is 320 x 240, buttons are 64 x 64 by default.
-*/
-
 class IdleScreen: public Screen, EventReceiver {
 public:
-    IdleScreen (Output *pout): Screen (pout) {
+    IdleScreen (): Screen () {
         previousTime = 0;
     }
     virtual ~IdleScreen() {}
@@ -24,9 +21,9 @@ public:
     virtual void activate() {
         EventManager.addListener(EVENT_TIME, this);
         EventManager.addListener(EVENT_BUTTON, this);
-        pOutput->clear();
-        pRemoteButton = (new ImageButton(pOutput, 8, 168, ButtonImage::Remote, 0));
-        pSettingsButton = (new ImageButton(pOutput, 248, 168, ButtonImage::Settings, 1));
+        Output.clear();
+        pRemoteButton = (new ImageButton(8, 168, ButtonImage::Remote, 0));
+        pSettingsButton = (new ImageButton(248, 168, ButtonImage::Settings, 1));
         showTime(AlarmManager.getCurrentTime());
     }
 
@@ -63,7 +60,7 @@ private:
         // Check if an alarm has gone off
         /*if (previousTime < pEventManager->getNextAlarmTime() &&
             now > pEventManager->getNextAlarmTime()) {
-                pOutput->soundAlarm();
+                Output.soundAlarm();
         }*/
 
         previousTime = pevent->time;
@@ -79,7 +76,7 @@ private:
             sprintf (text, "%d:%02d:%02d PM", elements.Hour - 12, elements.Minute, elements.Second);            
         }
 
-        pOutput->showText(70, 40, text, Colours::Blue);       
+        Output.showText(70, 40, text, Colours::Blue);       
     }
 
     void handleButtonEvent (ButtonEvent *pevent) {
@@ -97,7 +94,7 @@ private:
     }
 };
 
-Screen* createIdleScreen (Output *pout) {
-        return new IdleScreen(pout);
+Screen* createIdleScreen () {
+        return new IdleScreen();
     }
 
