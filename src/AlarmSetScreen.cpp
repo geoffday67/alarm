@@ -31,19 +31,19 @@ private:
             palarm = currentAlarms + n;
 
             if (palarm->configured) {
-                sprintf (text, "%2d:%02d %s", palarm->hour, palarm->minute, palarm->isAM() ? "AM" : "PM");
+                sprintf (text, "%02d:%02d", palarm->hour, palarm->minute);
             } else {
                 strcpy (text, "");
             }
 
-            pAlarmButtons[n] = new TextButton (80, y, 160, 48, text, n + ALARM_BUTTON_FIRST);
-            pActiveButtons->add(252, y);
+            pAlarmButtons[n] = new TextButton (80, y, 160, 68, text, n + ALARM_BUTTON_FIRST);
+            pActiveButtons->add(252, y + (68 - GRID_HEIGHT) / 2);
 
             if (palarm->enabled) {
                 pActiveButtons->setChecked(n);
             }
 
-            y += 58;
+            y += 78;
         }
     }
 
@@ -94,7 +94,6 @@ public:
         // Check for one of the alarm times pressed
         if (pbutton->id >= ALARM_BUTTON_FIRST && pbutton->id < ALARM_BUTTON_FIRST + ALARM_COUNT) {
             this->deactivate();
-            //AlarmAdjustScreen.setAlarm(currentAlarms + pbutton->id - ALARM_BUTTON_FIRST);
             AlarmAdjustScreen.setAlarmIndex (pbutton->id - ALARM_BUTTON_FIRST);
             AlarmAdjustScreen.activate();
             return;

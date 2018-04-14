@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 
 #define CALIBRATION_ADDRESS     0
+#define ALARM_ADDRESS           (CALIBRATION_ADDRESS + sizeof (CalibrationData))
 
 classPersistent Persistent;
 
@@ -37,4 +38,12 @@ void classPersistent::storeCalibration (CalibrationData *pdata) {
 
 void classPersistent::fetchCalibration (CalibrationData *pdata) {
     fetch (CALIBRATION_ADDRESS, pdata, sizeof (CalibrationData));
+}
+
+void classPersistent::storeAlarms(Alarm* palarm, int count) {
+    store (ALARM_ADDRESS, palarm, count * sizeof (Alarm));
+}
+
+void classPersistent::fetchAlarms(Alarm* palarm, int count) {
+    fetch (ALARM_ADDRESS, palarm, count * sizeof (Alarm));
 }

@@ -28,6 +28,12 @@ ButtonEvent::ButtonEvent (int id): Event(EVENT_BUTTON) {
 
 /*****************************************************************************/
 /*****************************************************************************/
+LightEvent::LightEvent (bool dark): Event(EVENT_LIGHT) {
+    this->dark = dark;
+}
+
+/*****************************************************************************/
+/*****************************************************************************/
 RegisteredReceiver::RegisteredReceiver(EventReceiver *per, int type) {
     this->pEventReceiver = per;
     this->type = type;

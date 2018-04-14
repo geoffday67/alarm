@@ -14,7 +14,11 @@
 #include "Button.h"
 #include "AlarmManager.h"
 
-#define TFT_LIGHT 16
+#define TFT_LIGHT_OUTPUT    16
+#define TFT_DARK_THRESHOLD  500
+#define TFT_LIGHT_THRESHOLD 700
+#define TFT_LIGHT_LOW       16
+#define TFT_LIGHT_HIGH      1023
 
 extern void calibrate(Adafruit_STMPE610& touch);
 extern void loadCalibration();
@@ -44,6 +48,42 @@ TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120}; //Central European Summe
 TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};   //Central European Standard Time
 Timezone CE(CEST, CET);
 
+bool isDark = false;
+
+void listFiles(void) {
+  Serial.println("SPIFFS files found:");
+
+  fs::Dir dir = SPIFFS.openDir("/"); // Root directory
+  String  line = "=====================================";
+
+  Serial.println(line);
+  Serial.println("  File name               Size");
+  Serial.println(line);
+
+  while (dir.next()) {
+    String fileName = dir.fileName();
+    Serial.print(fileName);
+    int spaces = 25 - fileName.length(); // Tabulate nicely
+    if (spaces < 0) spaces = 1;
+    while (spaces--) Serial.print(" ");
+    fs::File f = dir.openFile("r");
+    Serial.print(f.size()); Serial.println(" bytes");
+    yield();
+  }
+
+  Serial.println(line);
+}
+
+void printTime(time_t time) {
+  tmElements_t elements;
+  breakTime(time, elements);
+
+  char text [32];
+  sprintf (text, "%02d-%02d-%04d %02d:%02d:%02d", elements.Day, elements.Month, elements.Year + 1970, elements.Hour, elements.Minute, elements.Second);
+
+  Serial.println(text);
+}
+
 void setup()
 {
   Serial.begin(9600);
@@ -52,26 +92,24 @@ void setup()
   Serial1.begin(38400);
   Serial.println("Serial1 initialised");
 
-  pinMode(TFT_LIGHT, OUTPUT);
-  digitalWrite(TFT_LIGHT, HIGH);
+  pinMode(TFT_LIGHT_OUTPUT, OUTPUT);
+  analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_HIGH);
 
-  if (touch.begin())
-  {
+  if (touch.begin()) {
     Serial.println("Touch initialised");
-  }
-  else
-  {
+  } else {
     Serial.println("Touch initialisation failed");
   }
 
-  if (SPIFFS.begin())
-  {
+  if (SPIFFS.begin()) {
     Serial.println("SPIFFS initialised");
-  }
-  else
-  {
+  } else {
     Serial.println("SPIFFS failed");
   }
+  listFiles();
+
+  Output.begin();
+  Serial.println("Output initialised");
 
   /*timeClient.begin();
   Serial.print("Getting time ... ");
@@ -79,16 +117,38 @@ void setup()
   Serial.println(timeClient.getFormattedTime());
   RTC.set(timeClient.getEpochTime());*/
 
-  /*Dir dir = SPIFFS.openDir("/data");
-  while (dir.next()) {
-    Serial.print(dir.fileName());
-    File f = dir.openFile("r");
-    Serial.println(f.name());
-  }*/
-
-
   //calibrate(touch);
   loadCalibration();
+  Serial.println("Calibration loaded");
+
+  // TESTING
+  /*tmElements_t elements;
+  elements.Day = 14;
+  elements.Month = 3;
+  elements.Year = 48;
+  elements.Hour = 18;
+  elements.Minute = 23;
+  elements.Second = 0;
+  time_t start = makeTime(elements);
+  RTC.set(UK.toUTC(start));*/
+  // TESTING
+
+  lastTime = RTC.get();
+  time_t local = UK.toLocal(lastTime);
+  AlarmManager.setCurrentTime(local);
+  Serial.print("Local: ");
+  printTime(local);
+
+  // TESTING
+  const Alarm* pnext_alarm = AlarmManager.getNextAlarm();
+  time_t alarm_time = AlarmManager.getAlarmTime(pnext_alarm);
+  Serial.print("Alarm: ");
+  printTime(alarm_time);
+  RTC.set(UK.toUTC(alarm_time - 5));
+  lastTime = RTC.get();
+  local = UK.toLocal(lastTime);
+  AlarmManager.setCurrentTime(local);
+  // TESTING
 
   pIdleScreen->activate();
 }
@@ -132,30 +192,48 @@ void processTouch() {
   }
 }
 
+void processLight() {
+  int level = analogRead(A0);
+
+  if (isDark) {
+    if (level > TFT_LIGHT_THRESHOLD) {
+      isDark = false;
+      Serial.println("Light level now LIGHT");
+      analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_HIGH);
+      EventManager.queueEvent(new LightEvent(false));
+    }
+  } else {
+    if (level < TFT_DARK_THRESHOLD) {
+      isDark = true;
+      Serial.println("Light level now DARK");
+      EventManager.queueEvent(new LightEvent(true));
+      analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_LOW);
+    }
+  }
+}
+
 void loop()
 {
-  /*int n = analogRead(A0);
-    Serial.println(n);*/
-
+  processLight();
   processTouch();
 
-  /*while (Serial.available())
+  while (Serial.available())
   {
     int n = Serial.read();
     switch (n)
     {
     case '1':
-      analogWrite(TFT_LIGHT, 900);
+      analogWrite(TFT_LIGHT_OUTPUT, TFT_LIGHT_HIGH);
       break;
     case '0':
-      analogWrite(TFT_LIGHT, 100);
+      analogWrite(TFT_LIGHT_OUTPUT, TFT_LIGHT_LOW);
       break;
     default:
       Serial1.write(n);
       break;
     }
     Serial.write(n);
-  }*/
+  }
 
   // Fire time event once a second
   time_t utc = RTC.get();

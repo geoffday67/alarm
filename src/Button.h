@@ -22,7 +22,7 @@ class Button: public EventReceiver {
 };
 
 enum ButtonImage {
-  Save, Remote, Back, Settings, Checked, Unchecked, Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Backspace, A, P
+  Save, Back, Settings, Checked, Unchecked, SetAlarm, Remote, Snooze, AlarmOff
 };
 
 class ImageButton: public Button {

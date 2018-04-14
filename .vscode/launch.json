@@ -4,10 +4,10 @@
         {
             "type": "gdb",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceRoot}",
             "name": "PlatformIO Debugger",
             "target": "/Users/geoffday/Documents/PlatformIO/Projects/alarm-huzzah/.pioenvs/nodemcuv2/firmware.elf",
-            "gdbpath": "/Users/geoffday/.platformio/penv/bin/piodebuggdb",
+            "gdbpath": "/usr/local/bin/piodebuggdb",
             "autorun": [ "source .pioinit" ],
             "preLaunchTask": "PlatformIO: Pre-Debug",
             "internalConsoleOptions": "openOnSessionStart"

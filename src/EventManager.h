@@ -13,6 +13,7 @@
 #define EVENT_ALARM_SET 2
 #define EVENT_TOUCH     3
 #define EVENT_BUTTON    4
+#define EVENT_LIGHT     5
 
 /*****************************************************************************/
 class TimeEvent: public Event {
@@ -34,6 +35,13 @@ class ButtonEvent: public Event {
 public:
     ButtonEvent(int id);
     int id;
+};
+
+/*****************************************************************************/
+class LightEvent: public Event {
+public:
+    LightEvent(bool dark);
+    bool dark;
 };
 
 /*****************************************************************************/

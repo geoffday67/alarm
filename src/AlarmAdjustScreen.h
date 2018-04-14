@@ -10,15 +10,14 @@
 
 class classAlarmAdjustScreen: public Screen, EventReceiver {
 private:
-    Alarm* pAlarm;
     Button *pBackButton;
     Button *pSaveButton;
     Button* digitButtons[13];
     int position;
     int entry[4];
-    bool am;
     int index;
     void showEntry();
+    bool adjustAlarm();
     
 public:
     classAlarmAdjustScreen ();
@@ -27,8 +26,6 @@ public:
     virtual void activate();
     virtual void deactivate();
     virtual void onEvent(Event* pevent);
-
-    void setAlarm (Alarm* palarm);
     void setAlarmIndex (int index);
 };
 
