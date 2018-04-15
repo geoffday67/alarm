@@ -40,14 +40,16 @@ Alarm* classAlarmManager::getAlarms() {
     return alarms;
 }
 
-void classAlarmManager::setAlarm(int index, Alarm* palarm) {
-    memcpy (alarms + index, palarm, sizeof (Alarm));
-}
-
 void classAlarmManager::getAlarms(Alarm* palarm) {
     for (int n = 0; n < ALARM_COUNT; n++) {
         memcpy (palarm + n, alarms + n, sizeof (Alarm));
     }
+}
+
+void classAlarmManager::setAlarm(Alarm* palarm, int hour, int minute) {
+    palarm->hour = hour;
+    palarm->minute = minute;
+    palarm->snooze = 0;
 }
 
 Alarm* classAlarmManager::getAlarm(int index) {

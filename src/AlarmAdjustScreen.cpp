@@ -7,10 +7,6 @@ extern Screen* pAlarmSetScreen;
 
 classAlarmAdjustScreen AlarmAdjustScreen;
 
-#define BACK_BUTTON                 -1
-#define BACKSPACE_BUTTON            -2
-#define SAVE_BUTTON                 -5
-
 #define DIGIT_BUTTON_WIDTH          60
 #define DIGIT_BUTTON_HEIGHT         68
 
@@ -34,8 +30,6 @@ void classAlarmAdjustScreen::showEntry() {
 void classAlarmAdjustScreen::activate() {
     Output.clear();
     EventManager.addListener(EVENT_BUTTON, this);
-    //pBackButton = new ImageButton(LEFT_BUTTON_X, LEFT_BUTTON_Y, ButtonImage::Back, BACK_BUTTON);
-    //pSaveButton = new ImageButton(LEFT_BUTTON_X, LEFT_BUTTON_Y, ButtonImage::Save, SAVE_BUTTON);
 
     position = 0;
     entry[0] = -1;
@@ -63,9 +57,6 @@ void classAlarmAdjustScreen::deactivate() {
         delete digitButtons[n];
     }
 
-    //delete pBackButton;
-    //delete pSaveButton;
-
     EventManager.removeListener(this);
 }
 
@@ -74,36 +65,6 @@ void classAlarmAdjustScreen::onEvent(Event* pevent) {
         return;
 
     ButtonEvent *pbutton = (ButtonEvent*) pevent;
-
-    // Check for 'back' pressed
-    if (pbutton->id == BACK_BUTTON) {
-        this->deactivate();
-        pAlarmSetScreen->activate();
-        return;
-    }
-
-    if (pbutton->id == SAVE_BUTTON) {
-        Alarm alarm;
-        alarm.hour = (entry[0] * 10) + entry[1];
-        alarm.minute = (entry[2] * 10) + entry[3];
-        AlarmManager.setAlarm (index, &alarm);
-
-        this->deactivate();
-        pAlarmSetScreen->activate();
-        return;
-    }    
-
-    if (pbutton->id == BACKSPACE_BUTTON) {
-        if (position > 0) {
-            entry[--position] = -1;
-            showEntry();
-        }
-        return;
-    }
-
-    if (position > 3) {
-        return;
-    }
 
     entry[position++] = pbutton->id;
     showEntry();
@@ -115,22 +76,15 @@ void classAlarmAdjustScreen::onEvent(Event* pevent) {
     }
 }
 
-void classAlarmAdjustScreen::setAlarmIndex (int index) {
-     this->index = index;
+void classAlarmAdjustScreen::setAlarm (Alarm* palarm) {
+    this->pAlarm = palarm;
 }
 
-bool classAlarmAdjustScreen::adjustAlarm() {
-    Alarm* palarm = AlarmManager.getAlarm(index);
-
+void classAlarmAdjustScreen::adjustAlarm() {
     int hour = (entry[0] * 10) + entry[1];
     int minute = (entry[2] * 10) + entry[3];
 
     if (hour <= 23 && minute <= 59) {
-        palarm->hour = hour;
-        palarm->minute = minute;
-        AlarmManager.setAlarm (index, palarm);
-        return true;
+        AlarmManager.setAlarm (pAlarm, hour, minute);
     }
-
-    return false;
 }

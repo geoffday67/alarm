@@ -32,7 +32,6 @@ class classAlarmManager
 
   public:
     classAlarmManager();
-    void setAlarm(int index, Alarm* palarm);
     Alarm *getAlarm(int index);
     void getAlarms(Alarm* palarm);
     Alarm* getAlarms();
@@ -40,6 +39,7 @@ class classAlarmManager
     time_t getCurrentTime();
     void setCurrentTime(time_t time);
     time_t getAlarmTime(const Alarm* palarm);
+    void setAlarm(Alarm* palarm, int hour, int minute);
     void snoozeAlarm(Alarm* palarm, int minutes);
     void resetSnooze(Alarm* palarm);
     void enableAlarm(Alarm* palarm);

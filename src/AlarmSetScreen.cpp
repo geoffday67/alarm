@@ -35,8 +35,8 @@ private:
                 strcpy (text, "");
             }
 
-            pAlarmButtons[n] = new TextButton (120, y, 160, 68, text, n + ALARM_BUTTON_FIRST);
-            pActiveButtons->add(120 + 174, y + (68 - GRID_HEIGHT) / 2);
+            pAlarmButtons[n] = new TextButton (60, y, 160, 68, text, n + ALARM_BUTTON_FIRST);
+            pActiveButtons->add(60 + 174, y + (68 - GRID_HEIGHT) / 2);
 
             if (palarm->enabled) {
                 pActiveButtons->setChecked(n);
@@ -106,7 +106,7 @@ public:
         // Check for one of the alarm times pressed
         if (pbutton->id >= ALARM_BUTTON_FIRST && pbutton->id < ALARM_BUTTON_FIRST + ALARM_COUNT) {
             this->deactivate();
-            AlarmAdjustScreen.setAlarmIndex (pbutton->id - ALARM_BUTTON_FIRST);
+            AlarmAdjustScreen.setAlarm(pAlarms + pbutton->id - ALARM_BUTTON_FIRST);
             AlarmAdjustScreen.activate();
             return;
         }
