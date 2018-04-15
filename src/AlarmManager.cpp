@@ -10,6 +10,10 @@ bool Alarm::isAM() {
     return hour < 12;
 }
 
+bool Alarm::isSnoozing() {
+    return snooze > 0;
+}
+
 classAlarmManager::classAlarmManager() {
     restore();
 }
@@ -19,6 +23,8 @@ void classAlarmManager::save() {
 }
 
 void classAlarmManager::restore() {
+    // TODO Fetch from persistent storage
+
     alarms[0].hour = 7;
     alarms[0].minute = 0;
     alarms[0].enabled = false;
@@ -28,11 +34,10 @@ void classAlarmManager::restore() {
     alarms[1].minute = 0;
     alarms[1].enabled = true;
     alarms[1].configured = true;
+}
 
-    alarms[2].hour = 9;
-    alarms[2].minute = 0;
-    alarms[2].enabled = false;
-    alarms[2].configured = true;
+Alarm* classAlarmManager::getAlarms() {
+    return alarms;
 }
 
 void classAlarmManager::setAlarm(int index, Alarm* palarm) {

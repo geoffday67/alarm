@@ -26,7 +26,8 @@ public:
     virtual void activate();
     virtual void deactivate();
     virtual void onEvent(Event* pevent);
-    void setAlarmIndex (int index);
+
+    void setAlarm(Alarm*);
 };
 
 extern classAlarmAdjustScreen AlarmAdjustScreen;

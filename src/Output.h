@@ -28,6 +28,8 @@ and 4 units vertically with top and bottom margins of 8 pixels.
 #define GRID_HEIGHT     56
 #define LEFT_BUTTON_X   4
 #define LEFT_BUTTON_Y   180
+#define CENTRE_BUTTON_X (SCREEN_WIDTH - GRID_WIDTH) / 2
+#define CENTRE_BUTTON_Y 180
 #define RIGHT_BUTTON_X  260
 #define RIGHT_BUTTON_Y  180
 #define SCREEN_CENTRE   -1

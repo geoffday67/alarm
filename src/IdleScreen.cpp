@@ -12,6 +12,8 @@
 extern Screen* pRemoteScreen;
 extern Screen* pAlarmSetScreen;
 
+#define SNOOZE_BUTTON           2
+
 class IdleScreen: public Screen, EventReceiver {
 public:
     IdleScreen (): Screen () {
@@ -29,6 +31,9 @@ public:
         pAlarm = AlarmManager.getNextAlarm();
         if (pAlarm) {
             alarmTime = AlarmManager.getAlarmTime(pAlarm);
+            if (pAlarm->isSnoozing()) {
+                pSnoozeButton = new ImageButton(CENTRE_BUTTON_X, CENTRE_BUTTON_Y, ButtonImage::Snooze, SNOOZE_BUTTON, Colours::Red);
+            }
         }
 
         showTime();
@@ -39,6 +44,7 @@ public:
         EventManager.removeListener(this);
         delete pRemoteButton;
         delete pAlarmButton;
+        delete pSnoozeButton;
     }
 
     virtual void onEvent(Event* pevent) {
@@ -64,6 +70,7 @@ public:
 private:
     Button* pRemoteButton;
     Button* pAlarmButton;
+    Button* pSnoozeButton;
     time_t previousTime;
     time_t alarmTime;
     Alarm* pAlarm;
@@ -124,6 +131,17 @@ Serial.println(text);
                 this->deactivate();
                 pAlarmSetScreen->activate();
                 break;
+
+            case SNOOZE_BUTTON:
+                Output.fillRectangle(CENTRE_BUTTON_X, CENTRE_BUTTON_Y, GRID_WIDTH, GRID_HEIGHT, Colours::White);
+                delete pSnoozeButton;
+                pSnoozeButton = NULL;
+
+                AlarmManager.resetSnooze(pAlarm);
+                alarmTime = AlarmManager.getAlarmTime(pAlarm);
+                showAlarmTime();
+
+                break;
         }
     }
 
@@ -139,4 +157,3 @@ Serial.println(text);
 Screen* createIdleScreen () {
         return new IdleScreen();
     }
-

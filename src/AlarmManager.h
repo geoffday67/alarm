@@ -1,7 +1,7 @@
 #ifndef __ALARM_MANAGER__
 #define __ALARM_MANAGER__
 
-#define ALARM_COUNT   3
+#define ALARM_COUNT   2
 
 #include <time.h>
 //#include "Persistent.h"
@@ -14,6 +14,11 @@ class Alarm
     bool configured;
     bool enabled;
     bool isAM();
+    bool isSnoozing();
+
+    friend class classAlarmManager;
+
+  private:
     time_t snooze;
 };
 
@@ -30,6 +35,7 @@ class classAlarmManager
     void setAlarm(int index, Alarm* palarm);
     Alarm *getAlarm(int index);
     void getAlarms(Alarm* palarm);
+    Alarm* getAlarms();
     Alarm *getNextAlarm();
     time_t getCurrentTime();
     void setCurrentTime(time_t time);

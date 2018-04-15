@@ -360,12 +360,7 @@ void ImageButton::setImage(ButtonImage image) {
         case ButtonImage::Unchecked: pImage = bitmapUnchecked; break;
         case ButtonImage::Snooze: pImage = bitmapSnooze; break;
         case ButtonImage::AlarmOff: pImage = bitmapAlarmOff; break;
-
-        case ButtonImage::Back:
-            pImage = bitmapBack;
-			this->width = 56;
-			this->height = 56;
-            break;
+        case ButtonImage::Back: pImage = bitmapBack; break;
 
         case ButtonImage::Save: pImage = bitmapSave; this->width = GRID_WIDTH; this->height = GRID_HEIGHT; break;
     }

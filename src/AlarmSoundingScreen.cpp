@@ -45,7 +45,7 @@ void classAlarmSoundingScreen::onEvent(Event* pevent) {
             break;
 
         case ALARM_OFF_BUTTON:
-            AlarmManager.resetAlarm(pAlarm);
+            AlarmManager.resetSnooze(pAlarm);
             this->deactivate();
             pIdleScreen->activate();            
             break;

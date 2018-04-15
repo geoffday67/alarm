@@ -11,24 +11,23 @@ extern Screen* pIdleScreen;
 
 using namespace std;
 
-#define SAVE_BUTTON                 -1
+#define BACK_BUTTON                 -1
 #define ACTIVE_BUTTON_FIRST         10
 #define ALARM_BUTTON_FIRST          20
 
 class AlarmSetScreen: public Screen, EventReceiver {
 private:
-    Alarm currentAlarms[ALARM_COUNT];
+    Alarm* pAlarms;
     TextButton *pAlarmButtons[ALARM_COUNT];
     RadioButtons* pActiveButtons;
-    Button *pSaveButton;
+    Button* pBackButton;
 
     void showAlarms() {
-        // Display the configured alarms as text buttons
-        int y = TOP_MARGIN;
+        int y = 36;
         char text [32];
         Alarm *palarm;
         for (int n = 0; n < ALARM_COUNT; n++) {
-            palarm = currentAlarms + n;
+            palarm = pAlarms + n;
 
             if (palarm->configured) {
                 sprintf (text, "%02d:%02d", palarm->hour, palarm->minute);
@@ -36,8 +35,8 @@ private:
                 strcpy (text, "");
             }
 
-            pAlarmButtons[n] = new TextButton (80, y, 160, 68, text, n + ALARM_BUTTON_FIRST);
-            pActiveButtons->add(252, y + (68 - GRID_HEIGHT) / 2);
+            pAlarmButtons[n] = new TextButton (120, y, 160, 68, text, n + ALARM_BUTTON_FIRST);
+            pActiveButtons->add(120 + 174, y + (68 - GRID_HEIGHT) / 2);
 
             if (palarm->enabled) {
                 pActiveButtons->setChecked(n);
@@ -52,24 +51,27 @@ public:
     virtual ~AlarmSetScreen() {}
 
     virtual void activate() {
+        pAlarms = AlarmManager.getAlarms();
+
         pActiveButtons = new RadioButtons(ACTIVE_BUTTON_FIRST);
         pActiveButtons->canToggle = true;
 
         Output.clear();
-
-        AlarmManager.getAlarms(currentAlarms);
         showAlarms();
+        pBackButton = (new ImageButton(LEFT_BUTTON_X, LEFT_BUTTON_Y, ButtonImage::Back, BACK_BUTTON));
 
         EventManager.addListener(EVENT_BUTTON, this);
-        pSaveButton = new ImageButton(LEFT_BUTTON_X, LEFT_BUTTON_Y, ButtonImage::Save, SAVE_BUTTON);
     }
 
     virtual void deactivate() {
         delete pActiveButtons;
+
         for (int n = 0; n < ALARM_COUNT; n++) {
             delete pAlarmButtons[n];
         }
-        delete pSaveButton;
+
+        delete pBackButton;
+
         EventManager.removeListener(this);
     }
 
@@ -79,11 +81,21 @@ public:
 
         ButtonEvent *pbutton = (ButtonEvent*) pevent;
 
-        if (pbutton->id == SAVE_BUTTON) {
+        if (pbutton->id == BACK_BUTTON) {
+            this->deactivate();
+            pIdleScreen->activate();
+            return;
+        }
+
+        // Check for one of the enable/disable button pressed
+        if (pbutton->id >= ACTIVE_BUTTON_FIRST && pbutton->id < ACTIVE_BUTTON_FIRST + ALARM_COUNT) {
             int checked = pActiveButtons->getChecked();
             for (int n = 0; n < ALARM_COUNT; n++) {
-                currentAlarms[n].enabled = (n == checked);
-                AlarmManager.setAlarm(n, currentAlarms + n);
+                if (n == checked) {
+                    AlarmManager.enableAlarm(pAlarms + n);
+                } else {
+                    AlarmManager.disableAlarm(pAlarms + n);
+                }
             }                
 
             this->deactivate();
@@ -102,5 +114,5 @@ public:
 };
 
 Screen* createAlarmSetScreen () {
-        return new AlarmSetScreen();
-    }
+    return new AlarmSetScreen();
+}
