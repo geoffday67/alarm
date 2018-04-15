@@ -49,42 +49,21 @@ Alarm* classAlarmManager::getAlarm(int index) {
     return alarms + index;
 }
 
-const Alarm* classAlarmManager::getNextAlarm(time_t now) {
-    int found = -1;
-    int min = 24 * 60;
-
-    tmElements_t elements;
-    breakTime(now, elements);
-    int now_mins = (elements.Hour * 60) + elements.Minute;
-
-    // For each configured and enabled alarm time, calculate its difference from now. Choose the least.
-    for (int n = 0; n < ALARM_COUNT; n++)
-    {
-        if (!alarms[n].configured || !alarms[n].enabled) {
-            continue;
-        }
-        int alarm_mins = (alarms[n].hour * 60) + alarms[n].minute;
-        int diff_mins = alarm_mins - now_mins;
-        if (diff_mins < 0) {
-            diff_mins += 24 * 60;
-        }
-        if (diff_mins < min) {
-            min = diff_mins;
-            found = n;
-        }
+Alarm* classAlarmManager::getNextAlarm() {
+    // Only one alarm can be enabled at once so return that one (or none)
+    for (int n = 0; n < ALARM_COUNT; n++) {
+        if (alarms[n].enabled && alarms[n].configured)
+            return alarms + n;
     }
-    if (found == -1) {
-        return NULL;
-    } else {
-        return alarms + found;
-    }
-}
 
-const Alarm* classAlarmManager::getNextAlarm() {
-    return getNextAlarm(currentTime);
+    return NULL;
 }
 
 time_t classAlarmManager::getAlarmTime(const Alarm* palarm) {
+    if (palarm->snooze != 0) {
+        return palarm->snooze;
+    }
+
     tmElements_t elements;
     breakTime(currentTime, elements);
     elements.Hour = palarm->hour;
@@ -96,6 +75,25 @@ time_t classAlarmManager::getAlarmTime(const Alarm* palarm) {
     }
 
     return alarm_time;
+}
+
+void classAlarmManager::enableAlarm(Alarm* palarm) {
+    resetSnooze(palarm);
+    palarm->enabled = true;
+}
+
+void classAlarmManager::disableAlarm(Alarm* palarm) {
+    palarm->enabled = false;
+}
+
+void classAlarmManager::resetSnooze(Alarm* palarm) {
+    // Set the snooze back to zero so it isn't used
+    palarm->snooze = 0;
+}
+
+void classAlarmManager::snoozeAlarm(Alarm* palarm, int minutes) {
+    // Set the new alarm time for the current time plus the snooze amount
+    palarm->snooze = currentTime + minutes * SECS_PER_MIN;
 }
 
 void classAlarmManager::setCurrentTime(time_t time) {

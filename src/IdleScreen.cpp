@@ -27,7 +27,9 @@ public:
         pAlarmButton = (new ImageButton(RIGHT_BUTTON_X, RIGHT_BUTTON_Y, ButtonImage::SetAlarm, 1));
 
         pAlarm = AlarmManager.getNextAlarm();
-        alarmTime = AlarmManager.getAlarmTime(pAlarm);
+        if (pAlarm) {
+            alarmTime = AlarmManager.getAlarmTime(pAlarm);
+        }
 
         showTime();
         showAlarmTime();
@@ -64,17 +66,15 @@ private:
     Button* pAlarmButton;
     time_t previousTime;
     time_t alarmTime;
-    const Alarm* pAlarm;
+    Alarm* pAlarm;
 
-    void printTime(time_t time) {
-    tmElements_t elements;
-    breakTime(time, elements);
-
-    char text [32];
-    sprintf (text, "%02d-%02d-%04d %02d:%02d:%02d", elements.Day, elements.Month, elements.Year + 1970, elements.Hour, elements.Minute, elements.Second);
-
-    Serial.println(text);
-    }
+void printTime(time_t time) {
+tmElements_t elements;
+breakTime(time, elements);
+char text [32];
+sprintf (text, "%02d-%02d-%04d %02d:%02d:%02d", elements.Day, elements.Month, elements.Year + 1970, elements.Hour, elements.Minute, elements.Second);
+Serial.println(text);
+}
 
     void handleTimeEvent (TimeEvent *pevent) {
         showTime();
@@ -83,6 +83,7 @@ private:
         time_t now = AlarmManager.getCurrentTime();
         if (previousTime < alarmTime && now >= alarmTime) {
             this->deactivate();
+            AlarmSoundingScreen.setAlarm(pAlarm);
             AlarmSoundingScreen.activate();
         }
 
@@ -102,7 +103,9 @@ private:
         char text [32];
 
         if (pAlarm) {
-            sprintf (text, "%02d:%02d", pAlarm->hour, pAlarm->minute);
+            tmElements_t elements;
+            breakTime(alarmTime, elements);
+            sprintf (text, "%02d:%02d", elements.Hour, elements.Minute);
         } else {
             strcpy (text, "     ");
         }

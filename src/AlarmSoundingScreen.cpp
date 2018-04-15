@@ -38,9 +38,20 @@ void classAlarmSoundingScreen::onEvent(Event* pevent) {
     ButtonEvent *pbutton = (ButtonEvent*) pevent;
 
     switch (pbutton->id) {
+        case SNOOZE_BUTTON:
+            AlarmManager.snoozeAlarm(pAlarm, 5);
+            this->deactivate();
+            pIdleScreen->activate();            
+            break;
+
         case ALARM_OFF_BUTTON:
+            AlarmManager.resetAlarm(pAlarm);
             this->deactivate();
             pIdleScreen->activate();            
             break;
     }
+}
+
+void classAlarmSoundingScreen::setAlarm(Alarm* palarm) {
+    this->pAlarm = palarm;
 }

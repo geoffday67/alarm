@@ -14,6 +14,7 @@ class Alarm
     bool configured;
     bool enabled;
     bool isAM();
+    time_t snooze;
 };
 
 class classAlarmManager
@@ -29,11 +30,14 @@ class classAlarmManager
     void setAlarm(int index, Alarm* palarm);
     Alarm *getAlarm(int index);
     void getAlarms(Alarm* palarm);
-    const Alarm *getNextAlarm(time_t now);
-    const Alarm *getNextAlarm();
+    Alarm *getNextAlarm();
     time_t getCurrentTime();
     void setCurrentTime(time_t time);
-  time_t getAlarmTime(const Alarm* palarm);
+    time_t getAlarmTime(const Alarm* palarm);
+    void snoozeAlarm(Alarm* palarm, int minutes);
+    void resetSnooze(Alarm* palarm);
+    void enableAlarm(Alarm* palarm);
+    void disableAlarm(Alarm* palarm);
 };
 
 extern classAlarmManager AlarmManager;
