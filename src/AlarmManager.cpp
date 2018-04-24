@@ -11,7 +11,7 @@ bool Alarm::isAM() {
 }
 
 bool Alarm::isSnoozing() {
-    return snooze > 0;
+    return snooze != 0;
 }
 
 classAlarmManager::classAlarmManager() {
@@ -23,17 +23,11 @@ void classAlarmManager::save() {
 }
 
 void classAlarmManager::restore() {
-    // TODO Fetch from persistent storage
+    Persistent.fetchAlarms(alarms, ALARM_COUNT);
 
-    alarms[0].hour = 7;
-    alarms[0].minute = 0;
-    alarms[0].enabled = false;
-    alarms[0].configured = true;
-
-    alarms[1].hour = 8;
-    alarms[1].minute = 0;
-    alarms[1].enabled = true;
-    alarms[1].configured = true;
+    for (int n = 0; n < ALARM_COUNT; n++) {
+        resetSnooze(alarms + n);
+    }
 }
 
 Alarm* classAlarmManager::getAlarms() {
@@ -99,8 +93,8 @@ void classAlarmManager::resetSnooze(Alarm* palarm) {
 }
 
 void classAlarmManager::snoozeAlarm(Alarm* palarm, int minutes) {
-    // Set the new alarm time for the current time plus the snooze amount
-    palarm->snooze = currentTime + minutes * SECS_PER_MIN;
+    palarm->snooze = currentTime + (minutes * SECS_PER_MIN);
+    palarm->snooze = (palarm->snooze / 60) * 60;        // Set seconds to zero
 }
 
 void classAlarmManager::setCurrentTime(time_t time) {

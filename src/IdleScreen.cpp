@@ -80,15 +80,22 @@ tmElements_t elements;
 breakTime(time, elements);
 char text [32];
 sprintf (text, "%02d-%02d-%04d %02d:%02d:%02d", elements.Day, elements.Month, elements.Year + 1970, elements.Hour, elements.Minute, elements.Second);
-Serial.println(text);
+Serial.print(text);
 }
 
     void handleTimeEvent (TimeEvent *pevent) {
         showTime();
 
-        // Check if an alarm has gone off
         time_t now = AlarmManager.getCurrentTime();
-        if (previousTime < alarmTime && now >= alarmTime) {
+
+        /*Serial.print ("Now: "); printTime(now);
+        if (pAlarm) {
+            Serial.print (", alarm: "); printTime(alarmTime);
+        }
+        Serial.println();*/
+
+        // Check if an alarm has gone off
+        if (pAlarm && previousTime < alarmTime && now >= alarmTime) {
             this->deactivate();
             AlarmSoundingScreen.setAlarm(pAlarm);
             AlarmSoundingScreen.activate();

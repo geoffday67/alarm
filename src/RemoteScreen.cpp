@@ -4,8 +4,12 @@
 #include "EventReceiver.h"
 #include "Output.h"
 #include "Button.h"
+#include "WiFiManager.h"
 
 extern Screen* pIdleScreen;
+
+#define     BACK_BUTTON         1
+#define     KETTLE_BUTTON       2
 
 class RemoteScreen: public Screen, EventReceiver {
 public:
@@ -15,8 +19,8 @@ public:
     virtual void activate() {
         EventManager.addListener(EVENT_BUTTON, this);
         Output.clear();
-        pBackButton = new ImageButton(8, 168, ButtonImage::Back, 0);
-        pOnButton = new BitmapButton(149, 40, 128, 160, "/kettle.bmp", 1);
+        pBackButton = new ImageButton(LEFT_BUTTON_X, LEFT_BUTTON_Y, ButtonImage::Back, BACK_BUTTON);
+        pOnButton = new BitmapButton(140, 40, 128, 160, "/kettle.bmp", KETTLE_BUTTON);
     }
 
     virtual void deactivate() {
@@ -43,7 +47,13 @@ private:
 
     void handleButtonEvent (ButtonEvent *pevent) {
         switch(pevent->id) {
-            case 0:
+            case BACK_BUTTON:
+                this->deactivate();
+                pIdleScreen->activate();
+                break;
+
+            case KETTLE_BUTTON:
+                WiFiManager.sendCommand(3, "on");
                 this->deactivate();
                 pIdleScreen->activate();
                 break;

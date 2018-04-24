@@ -1,3 +1,17 @@
+/*
+TODO - SOFTWARE
+Settings (none critial)
+  - time zone
+  - snooze length
+  - high/low brightness and thresholds
+  - WiFi credentials
+
+TODO - HARDWARE
+Make reset(s) available outside
+Mount board on standoffs or otherwise line up with power hole
+Clean up case
+*/
+
 #include <Adafruit_STMPE610.h>
 #include "FS.h"
 #include <DS1307RTC.h>
@@ -17,8 +31,8 @@
 #define TFT_LIGHT_OUTPUT    16
 #define TFT_DARK_THRESHOLD  500
 #define TFT_LIGHT_THRESHOLD 700
-#define TFT_LIGHT_LOW       16
-#define TFT_LIGHT_HIGH      1023
+#define TFT_LIGHT_LOW       0
+#define TFT_LIGHT_HIGH      800
 
 extern void calibrate(Adafruit_STMPE610& touch);
 extern void loadCalibration();
@@ -94,6 +108,7 @@ void setup()
 
   pinMode(TFT_LIGHT_OUTPUT, OUTPUT);
   analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_HIGH);
+  Serial.println("Initial light level set");
 
   if (touch.begin()) {
     Serial.println("Touch initialised");
@@ -111,43 +126,29 @@ void setup()
   Output.begin();
   Serial.println("Output initialised");
 
-  /*timeClient.begin();
-  Serial.print("Getting time ... ");
-  timeClient.forceUpdate();
-  Serial.println(timeClient.getFormattedTime());
-  RTC.set(timeClient.getEpochTime());*/
+  timeClient.begin();
+  timeClient.setUpdateInterval(600000L);
+  Serial.println("NTP initialised");
 
   //calibrate(touch);
   loadCalibration();
   Serial.println("Calibration loaded");
 
-  // TESTING
-  /*tmElements_t elements;
-  elements.Day = 14;
-  elements.Month = 3;
-  elements.Year = 48;
-  elements.Hour = 18;
-  elements.Minute = 23;
-  elements.Second = 0;
-  time_t start = makeTime(elements);
-  RTC.set(UK.toUTC(start));*/
-  // TESTING
-
   lastTime = RTC.get();
   time_t local = UK.toLocal(lastTime);
   AlarmManager.setCurrentTime(local);
-  Serial.print("Local: ");
+  Serial.print("Local time: ");
   printTime(local);
 
   // TESTING
-  const Alarm* pnext_alarm = AlarmManager.getNextAlarm();
+  /*const Alarm* pnext_alarm = AlarmManager.getNextAlarm();
   time_t alarm_time = AlarmManager.getAlarmTime(pnext_alarm);
   Serial.print("Alarm: ");
   printTime(alarm_time);
   RTC.set(UK.toUTC(alarm_time - 5));
   lastTime = RTC.get();
   local = UK.toLocal(lastTime);
-  AlarmManager.setCurrentTime(local);
+  AlarmManager.setCurrentTime(local);*/
   // TESTING
 
   pIdleScreen->activate();
@@ -217,7 +218,7 @@ void loop()
   processLight();
   processTouch();
 
-  while (Serial.available())
+  /*while (Serial.available())
   {
     int n = Serial.read();
     switch (n)
@@ -233,11 +234,18 @@ void loop()
       break;
     }
     Serial.write(n);
-  }
+  }*/
 
+  if (timeClient.asyncUpdate()) {
+    Serial.print ("Time updated: ");
+    Serial.println(timeClient.getFormattedTime());
+    RTC.set(timeClient.getEpochTime());
+  }
+  
   // Fire time event once a second
   time_t utc = RTC.get();
   if (utc != lastTime) {
+
     time_t local = UK.toLocal(utc);
     AlarmManager.setCurrentTime(local);
     EventManager.queueEvent(new TimeEvent(local));

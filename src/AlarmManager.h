@@ -4,7 +4,6 @@
 #define ALARM_COUNT   2
 
 #include <time.h>
-//#include "Persistent.h"
 
 class Alarm
 {
@@ -26,12 +25,12 @@ class classAlarmManager
 {
   private:
     Alarm alarms[ALARM_COUNT];
-    void save();
-    void restore();
     time_t currentTime;
 
   public:
     classAlarmManager();
+    void save();
+    void restore();
     Alarm *getAlarm(int index);
     void getAlarms(Alarm* palarm);
     Alarm* getAlarms();

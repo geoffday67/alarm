@@ -35,8 +35,8 @@ private:
                 strcpy (text, "");
             }
 
-            pAlarmButtons[n] = new TextButton (60, y, 160, 68, text, n + ALARM_BUTTON_FIRST);
-            pActiveButtons->add(60 + 174, y + (68 - GRID_HEIGHT) / 2);
+            pAlarmButtons[n] = new TextButton (72, y, 160, 68, text, n + ALARM_BUTTON_FIRST);
+            pActiveButtons->add(72 + 174, y + (68 - GRID_HEIGHT) / 2);
 
             if (palarm->enabled) {
                 pActiveButtons->setChecked(n);
@@ -64,6 +64,8 @@ public:
     }
 
     virtual void deactivate() {
+        AlarmManager.save();
+        
         delete pActiveButtons;
 
         for (int n = 0; n < ALARM_COUNT; n++) {
