@@ -8,7 +8,6 @@ Settings (none critial)
 
 TODO - HARDWARE
 Make reset(s) available outside
-Mount board on standoffs or otherwise line up with power hole
 Clean up case
 */
 
@@ -33,6 +32,8 @@ Clean up case
 #define TFT_LIGHT_THRESHOLD 700
 #define TFT_LIGHT_LOW       0
 #define TFT_LIGHT_HIGH      800
+#define TFT_LIGHT_TEMP      100
+#define LIGHT_TEMP_PERIOD   5000
 
 extern void calibrate(Adafruit_STMPE610& touch);
 extern void loadCalibration();
@@ -49,6 +50,7 @@ int last_x, last_y;
 time_t lastTime;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
+int lightTimer;
 
 Screen *pIdleScreen = createIdleScreen();
 Screen *pAlarmSetScreen = createAlarmSetScreen();
@@ -183,6 +185,11 @@ void processTouch() {
     if (!touched_previously) {
       EventManager.queueEvent(new TouchEvent(last_x, last_y, true));
       touched_previously = true;
+
+      if (isDark) {
+        analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_TEMP);
+        lightTimer = millis();
+      }
     }
   } else {
     // The buffer is empty, the user is no longer touching the screen, fire UP if not already up
@@ -194,11 +201,21 @@ void processTouch() {
 }
 
 void processLight() {
+  if (lightTimer > 0) {
+    if (millis() - lightTimer >= LIGHT_TEMP_PERIOD) {
+      if (isDark) {
+        analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_LOW);
+      }
+      lightTimer = 0;
+    }
+  }
+
   int level = analogRead(A0);
 
   if (isDark) {
     if (level > TFT_LIGHT_THRESHOLD) {
       isDark = false;
+      lightTimer = 0;
       Serial.println("Light level now LIGHT");
       analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_HIGH);
       EventManager.queueEvent(new LightEvent(false));
