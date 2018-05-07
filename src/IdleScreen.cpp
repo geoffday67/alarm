@@ -88,12 +88,6 @@ Serial.print(text);
 
         time_t now = AlarmManager.getCurrentTime();
 
-        /*Serial.print ("Now: "); printTime(now);
-        if (pAlarm) {
-            Serial.print (", alarm: "); printTime(alarmTime);
-        }
-        Serial.println();*/
-
         // Check if an alarm has gone off
         if (pAlarm && previousTime < alarmTime && now >= alarmTime) {
             this->deactivate();
@@ -110,7 +104,7 @@ Serial.print(text);
 
         char text [32];
         sprintf (text, "%02d:%02d:%02d", elements.Hour, elements.Minute, elements.Second);
-        Output.showText(SCREEN_CENTRE, 40, text, Colours::Blue);       
+        Output.showText(SCREEN_CENTRE, TOP_MARGIN + 40, text, Colours::Blue);       
     }
 
     void showAlarmTime() {
@@ -124,7 +118,7 @@ Serial.print(text);
             strcpy (text, "     ");
         }
 
-        Output.showText(SCREEN_CENTRE, 110, text, Colours::LightGrey);               
+        Output.showText(SCREEN_CENTRE, TOP_MARGIN + 110, text, Colours::LightGrey);               
     }
 
     void handleButtonEvent (ButtonEvent *pevent) {

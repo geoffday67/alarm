@@ -13,7 +13,7 @@ classAlarmSoundingScreen AlarmSoundingScreen;
 
 void classAlarmSoundingScreen::activate() {
     Output.clear();
-	Output.drawBitmap(0, 0, "/alarm.bmp");
+	Output.drawBitmap(0, 60, "/alarm.bmp");
     Output.startAlarm();
     
     EventManager.addListener(EVENT_BUTTON, this);

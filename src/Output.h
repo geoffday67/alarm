@@ -20,18 +20,18 @@ and 4 units vertically with top and bottom margins of 8 pixels.
 
 #define SCREEN_WIDTH    320
 #define SCREEN_HEIGHT   240
-#define TOP_MARGIN      8
+#define TOP_MARGIN      32//8
 #define BOTTOM_MARGIN   8
 #define LEFT_MARGIN     8
 #define RIGHT_MARGIN    8
 #define GRID_WIDTH      56
 #define GRID_HEIGHT     56
 #define LEFT_BUTTON_X   4
-#define LEFT_BUTTON_Y   180
+#define LEFT_BUTTON_Y   4//180
 #define CENTRE_BUTTON_X (SCREEN_WIDTH - GRID_WIDTH) / 2
-#define CENTRE_BUTTON_Y 180
+#define CENTRE_BUTTON_Y 4//180
 #define RIGHT_BUTTON_X  260
-#define RIGHT_BUTTON_Y  180
+#define RIGHT_BUTTON_Y  4//180
 #define SCREEN_CENTRE   -1
 
 enum class Colours: int {

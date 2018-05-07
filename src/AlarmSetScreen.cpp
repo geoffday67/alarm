@@ -23,7 +23,7 @@ private:
     Button* pBackButton;
 
     void showAlarms() {
-        int y = 36;
+        int y = TOP_MARGIN + 28;
         char text [32];
         Alarm *palarm;
         for (int n = 0; n < ALARM_COUNT; n++) {

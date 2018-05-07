@@ -1,3 +1,10 @@
+// AUTOMATICALLY GENERATED FILE. PLEASE DO NOT MODIFY IT MANUALLY
+
+// PIO Unified Debugger
+//
+// http://docs.platformio.org/page/plus/debugging.html
+// http://docs.platformio.org/page/section_env_debug.html#projectconf-debug-tool
+
 {
     "version": "0.2.0",
     "configurations": [
@@ -10,6 +17,23 @@
             "gdbpath": "/usr/local/bin/piodebuggdb",
             "autorun": [ "source .pioinit" ],
             "preLaunchTask": "PlatformIO: Pre-Debug",
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PlatformIO Debugger (Dev)",
+            "executable": "/Users/geoffday/Documents/PlatformIO/Projects/alarm-huzzah/.pioenvs/nodemcuv2/firmware.elf",
+            "toolchainBinDir": "/Users/geoffday/.platformio/packages/toolchain-xtensa/bin",
+            "preLaunchTask": "PlatformIO: Pre-Debug",
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PlatformIO Debugger (Dev) (Quick)",
+            "executable": "/Users/geoffday/Documents/PlatformIO/Projects/alarm-huzzah/.pioenvs/nodemcuv2/firmware.elf",
+            "toolchainBinDir": "/Users/geoffday/.platformio/packages/toolchain-xtensa/bin",
             "internalConsoleOptions": "openOnSessionStart"
         }
     ]
