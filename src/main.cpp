@@ -33,7 +33,7 @@ Clean up case
 #define TFT_LIGHT_LOW       0
 #define TFT_LIGHT_HIGH      800
 #define TFT_LIGHT_TEMP      100
-#define LIGHT_TEMP_PERIOD   5000
+#define LIGHT_TEMP_PERIOD   10000
 
 extern void calibrate(Adafruit_STMPE610& touch);
 extern void loadCalibration();
@@ -183,12 +183,12 @@ void processTouch() {
 
     // If the buffer is not empty then a touch event happened, fire DOWN if not already down
     if (!touched_previously) {
-      EventManager.queueEvent(new TouchEvent(last_x, last_y, true));
-      touched_previously = true;
-
       if (isDark) {
         analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_TEMP);
         lightTimer = millis();
+      } else {
+        EventManager.queueEvent(new TouchEvent(last_x, last_y, true));
+        touched_previously = true;
       }
     }
   } else {
