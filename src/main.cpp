@@ -158,6 +158,7 @@ void setup()
 
 void processTouch() {
   static bool touched_previously = false;
+  static bool touch_caused_temp_light = false;
 
   // The last touched position
   static int last_x = -1;
@@ -183,9 +184,10 @@ void processTouch() {
 
     // If the buffer is not empty then a touch event happened, fire DOWN if not already down
     if (!touched_previously) {
-      if (isDark) {
+      if (isDark && lightTimer == 0) {
         analogWrite (TFT_LIGHT_OUTPUT, TFT_LIGHT_TEMP);
         lightTimer = millis();
+        touch_caused_temp_light = true;
       } else {
         EventManager.queueEvent(new TouchEvent(last_x, last_y, true));
         touched_previously = true;
@@ -194,8 +196,11 @@ void processTouch() {
   } else {
     // The buffer is empty, the user is no longer touching the screen, fire UP if not already up
     if (touched_previously) {
-      EventManager.queueEvent(new TouchEvent(last_x, last_y, false));
+      if (!touch_caused_temp_light) {
+        EventManager.queueEvent(new TouchEvent(last_x, last_y, false));
+      }
       touched_previously = false;
+      touch_caused_temp_light = false;
     }
   }
 }
